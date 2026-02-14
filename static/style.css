@@ -1,0 +1,336 @@
+:root {
+    --card-bg: #1a1a2e;
+    --card-border: #2a2a4a;
+    --accent: #4cc9f0;
+    --accent2: #f72585;
+    --accent3: #7209b7;
+    --accent4: #4361ee;
+    --text-muted: #8888aa;
+    --positive: #06d6a0;
+    --negative: #ef476f;
+}
+
+body {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 1rem;
+}
+
+/* Header */
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+}
+
+header h1 {
+    margin: 0;
+    font-size: 1.5rem;
+}
+
+.header-actions {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+}
+
+#sync-status {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+}
+
+/* Tab navigation */
+.tabs {
+    display: flex;
+    gap: 0;
+    border-bottom: 2px solid var(--card-border);
+    margin-bottom: 1.5rem;
+}
+
+.tabs button {
+    background: none;
+    border: none;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -2px;
+    padding: 0.75rem 1.25rem;
+    color: var(--text-muted);
+    cursor: pointer;
+    font-size: 0.95rem;
+    transition: color 0.2s, border-color 0.2s;
+}
+
+.tabs button:hover {
+    color: var(--accent);
+}
+
+.tabs button.active {
+    color: var(--accent);
+    border-bottom-color: var(--accent);
+    font-weight: 600;
+}
+
+/* Tab panels */
+.tab-panel {
+    display: none;
+}
+
+.tab-panel.active {
+    display: block;
+}
+
+/* Summary cards */
+.summary-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.card {
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 12px;
+    padding: 1.25rem;
+}
+
+.card .label {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 0.25rem;
+}
+
+.card .value {
+    font-size: 1.8rem;
+    font-weight: 700;
+    line-height: 1.2;
+}
+
+.card .change {
+    font-size: 0.8rem;
+    margin-top: 0.25rem;
+}
+
+.card .change.positive {
+    color: var(--positive);
+}
+
+.card .change.negative {
+    color: var(--negative);
+}
+
+/* Chart grid */
+.chart-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.chart-container {
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 12px;
+    padding: 1.25rem;
+}
+
+.chart-container h3 {
+    margin: 0 0 1rem 0;
+    font-size: 1rem;
+    font-weight: 600;
+}
+
+.chart-container canvas {
+    width: 100% !important;
+    max-height: 300px;
+}
+
+/* Full-width chart */
+.chart-full {
+    grid-column: 1 / -1;
+}
+
+/* Activities table */
+.filters {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1rem;
+    align-items: end;
+    flex-wrap: wrap;
+}
+
+.filters label {
+    font-size: 0.85rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.filters select,
+.filters input {
+    padding: 0.4rem 0.6rem;
+    font-size: 0.85rem;
+}
+
+table {
+    width: 100%;
+    font-size: 0.85rem;
+}
+
+th {
+    text-align: left;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+td {
+    white-space: nowrap;
+}
+
+/* Journal */
+.journal-form {
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 12px;
+    padding: 1.25rem;
+    margin-bottom: 1.5rem;
+}
+
+.journal-form h3 {
+    margin: 0 0 1rem 0;
+}
+
+.form-row {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 0.75rem;
+    flex-wrap: wrap;
+}
+
+.form-row label {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    font-size: 0.85rem;
+    flex: 1;
+    min-width: 120px;
+}
+
+.form-row textarea {
+    min-height: 80px;
+}
+
+.journal-entries {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.journal-entry {
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 12px;
+    padding: 1rem 1.25rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 1rem;
+}
+
+.journal-entry .meta {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    margin-bottom: 0.25rem;
+}
+
+.journal-entry .content {
+    flex: 1;
+}
+
+.journal-entry .actions {
+    display: flex;
+    gap: 0.5rem;
+    flex-shrink: 0;
+}
+
+.journal-entry .actions button {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.75rem;
+}
+
+.badge {
+    display: inline-block;
+    background: var(--accent4);
+    color: white;
+    border-radius: 4px;
+    padding: 0.1rem 0.4rem;
+    font-size: 0.75rem;
+    margin-right: 0.25rem;
+}
+
+/* Loading / empty states */
+.loading, .empty-state {
+    text-align: center;
+    padding: 3rem;
+    color: var(--text-muted);
+}
+
+.spinner {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border: 2px solid var(--card-border);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    margin-right: 0.5rem;
+    vertical-align: middle;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* Date range picker bar */
+.date-range {
+    display: flex;
+    gap: 0.75rem;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    font-size: 0.85rem;
+}
+
+.date-range label {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+}
+
+.date-range input[type="date"] {
+    padding: 0.3rem 0.5rem;
+    font-size: 0.85rem;
+}
+
+.date-range button {
+    padding: 0.3rem 0.75rem;
+    font-size: 0.85rem;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .chart-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .summary-cards {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    header {
+        flex-direction: column;
+        gap: 0.75rem;
+        align-items: flex-start;
+    }
+}
