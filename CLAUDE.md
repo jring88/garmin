@@ -52,6 +52,9 @@ static/
 ├── app.js             # All frontend logic: chart rendering, sync polling, CRUD
 └── style.css          # Dark theme, responsive layout, CSS variables
 
+scripts/
+└── backfill.py        # One-time historical data backfill (run manually)
+
 data/
 └── garmin_health.db   # SQLite database (gitignored)
 ```
@@ -101,7 +104,7 @@ All API routes are prefixed with `/api`. Static files are mounted at `/` (must b
 - **Lifespan startup**: `create_tables()` runs on app startup to ensure schema exists.
 - **Dependency injection**: `get_session()` async generator provides DB sessions to route handlers.
 - **Background sync**: Sync operations run via FastAPI `BackgroundTasks`; a global `sync_status` dict tracks real-time progress for the polling endpoint.
-- **Incremental sync**: `SyncLog` tracks `last_synced_date` per data type. Only new data since that date is fetched. Empty streak detection skips forward 30 days after 14 consecutive empty days.
+- **Incremental sync**: `SyncLog` tracks `last_synced_date` per data type. Only new data since that date is fetched. Every day is checked unconditionally (no skip logic).
 - **Upsert pattern**: All sync functions use SQLite `insert().on_conflict_do_update()` for idempotent writes.
 - **Rate limiting**: 1-second delay (`asyncio.sleep(1)`) between Garmin API calls.
 - **Static files last**: The `StaticFiles` mount at `/` must be the last mount to avoid shadowing `/api` routes.

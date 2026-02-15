@@ -23,10 +23,6 @@ logger = logging.getLogger(__name__)
 # Absolute fallback if we can't determine earliest activity date
 FALLBACK_START = date(2015, 1, 1)
 
-# After this many consecutive empty days, skip forward by SKIP_JUMP days
-EMPTY_STREAK_THRESHOLD = 14
-SKIP_JUMP = 30
-
 # Global sync state for status polling
 sync_status: dict[str, dict] = {}
 
@@ -209,7 +205,6 @@ async def sync_sleep(client: Garmin):
         end_date = date.today()
         current = start_date
         latest_date = last_date or date.min
-        empty_streak = 0
 
         while current <= end_date:
             sync_status[data_type]["progress"] = f"Fetching sleep for {current}..."
@@ -220,17 +215,11 @@ async def sync_sleep(client: Garmin):
             except Exception as e:
                 logger.warning(f"Failed to fetch sleep for {current}: {e}")
                 current += timedelta(days=1)
-                empty_streak += 1
-                if empty_streak >= EMPTY_STREAK_THRESHOLD:
-                    current += timedelta(days=SKIP_JUMP)
-                    empty_streak = 0
-                    logger.info(f"Sleep: skipping ahead to {current}")
                 await asyncio.sleep(1)
                 continue
 
             if data and data.get("dailySleepDTO"):
                 s = data["dailySleepDTO"]
-                empty_streak = 0
 
                 sleep_start = None
                 sleep_end = None
@@ -285,13 +274,6 @@ async def sync_sleep(client: Garmin):
 
                 if current > latest_date:
                     latest_date = current
-            else:
-                empty_streak += 1
-                if empty_streak >= EMPTY_STREAK_THRESHOLD:
-                    current += timedelta(days=SKIP_JUMP)
-                    empty_streak = 0
-                    logger.info(f"Sleep: skipping ahead to {current}")
-                    continue
 
             current += timedelta(days=1)
             await asyncio.sleep(1)
@@ -316,7 +298,6 @@ async def sync_daily_summary(client: Garmin):
         end_date = date.today()
         current = start_date
         latest_date = last_date or date.min
-        empty_streak = 0
 
         while current <= end_date:
             sync_status[data_type]["progress"] = f"Fetching daily for {current}..."
@@ -327,17 +308,12 @@ async def sync_daily_summary(client: Garmin):
             except Exception as e:
                 logger.warning(f"Failed to fetch daily for {current}: {e}")
                 current += timedelta(days=1)
-                empty_streak += 1
-                if empty_streak >= EMPTY_STREAK_THRESHOLD:
-                    current += timedelta(days=SKIP_JUMP)
-                    empty_streak = 0
                 await asyncio.sleep(1)
                 continue
 
             has_data = data and (data.get("totalSteps") or data.get("restingHeartRate") or data.get("totalKilocalories"))
 
             if has_data:
-                empty_streak = 0
                 async with async_session() as session:
                     stmt = sqlite_insert(DailySummary).values(
                         calendar_date=current,
@@ -380,13 +356,6 @@ async def sync_daily_summary(client: Garmin):
 
                 if current > latest_date:
                     latest_date = current
-            else:
-                empty_streak += 1
-                if empty_streak >= EMPTY_STREAK_THRESHOLD:
-                    current += timedelta(days=SKIP_JUMP)
-                    empty_streak = 0
-                    logger.info(f"Daily: skipping ahead to {current}")
-                    continue
 
             current += timedelta(days=1)
             await asyncio.sleep(1)
@@ -411,7 +380,6 @@ async def sync_heart_rate(client: Garmin):
         end_date = date.today()
         current = start_date
         latest_date = last_date or date.min
-        empty_streak = 0
 
         while current <= end_date:
             sync_status[data_type]["progress"] = f"Fetching HR for {current}..."
@@ -422,17 +390,12 @@ async def sync_heart_rate(client: Garmin):
             except Exception as e:
                 logger.warning(f"Failed to fetch HR for {current}: {e}")
                 current += timedelta(days=1)
-                empty_streak += 1
-                if empty_streak >= EMPTY_STREAK_THRESHOLD:
-                    current += timedelta(days=SKIP_JUMP)
-                    empty_streak = 0
                 await asyncio.sleep(1)
                 continue
 
             has_data = data and (data.get("restingHeartRate") or data.get("maxHeartRate"))
 
             if has_data:
-                empty_streak = 0
                 async with async_session() as session:
                     stmt = sqlite_insert(HeartRate).values(
                         calendar_date=current,
@@ -455,13 +418,6 @@ async def sync_heart_rate(client: Garmin):
 
                 if current > latest_date:
                     latest_date = current
-            else:
-                empty_streak += 1
-                if empty_streak >= EMPTY_STREAK_THRESHOLD:
-                    current += timedelta(days=SKIP_JUMP)
-                    empty_streak = 0
-                    logger.info(f"HR: skipping ahead to {current}")
-                    continue
 
             current += timedelta(days=1)
             await asyncio.sleep(1)
