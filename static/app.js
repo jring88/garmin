@@ -161,8 +161,23 @@ function pollSyncStatus() {
 // ── Dashboard / Overview ──
 async function loadDashboard() {
     const days = document.getElementById('overview-days').value;
+    const customRange = document.getElementById('overview-custom-range');
+    customRange.style.display = days === 'custom' ? '' : 'none';
+
+    let url;
+    if (days === 'custom') {
+        const start = document.getElementById('overview-start').value;
+        const end = document.getElementById('overview-end').value;
+        if (!start && !end) return; // wait for user to pick dates
+        url = '/dashboard?days=0';
+        if (start) url += `&start=${start}`;
+        if (end) url += `&end=${end}`;
+    } else {
+        url = `/dashboard?days=${days}`;
+    }
+
     try {
-        dashboardData = await api(`/dashboard?days=${days}`);
+        dashboardData = await api(url);
         renderSummaryCards(dashboardData);
         renderActivityChart(dashboardData.activities);
         renderSleepChart(dashboardData.sleep);
@@ -456,11 +471,15 @@ async function loadActivities() {
 
 // ── Sleep Tab ──
 async function loadSleepTab() {
-    const days = document.getElementById('sleep-days').value;
-    const start = new Date(Date.now() - days * 86400000).toISOString().split('T')[0];
+    const days = parseInt(document.getElementById('sleep-days').value);
+    let url = '/sleep?limit=1000';
+    if (days > 0) {
+        const start = new Date(Date.now() - days * 86400000).toISOString().split('T')[0];
+        url += `&start=${start}`;
+    }
 
     try {
-        const sleep = await api(`/sleep?start=${start}&limit=365`);
+        const sleep = await api(url);
         const sorted = [...sleep].sort((a, b) => a.calendar_date.localeCompare(b.calendar_date));
 
         // Sleep score trend
@@ -540,11 +559,15 @@ async function loadSleepTab() {
 
 // ── Body Tab ──
 async function loadBodyTab() {
-    const days = document.getElementById('body-days').value;
-    const start = new Date(Date.now() - days * 86400000).toISOString().split('T')[0];
+    const days = parseInt(document.getElementById('body-days').value);
+    let url = '/body?limit=1000';
+    if (days > 0) {
+        const start = new Date(Date.now() - days * 86400000).toISOString().split('T')[0];
+        url += `&start=${start}`;
+    }
 
     try {
-        const body = await api(`/body?start=${start}&limit=365`);
+        const body = await api(url);
         const sorted = [...body].sort((a, b) => a.calendar_date.localeCompare(b.calendar_date));
         const withWeight = sorted.filter(b => b.weight_kg);
 

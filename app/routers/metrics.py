@@ -19,50 +19,57 @@ router = APIRouter(tags=["metrics"])
 
 @router.get("/dashboard", response_model=DashboardOut)
 async def get_dashboard(
-    days: int = Query(30, ge=1, le=365),
+    days: int = Query(30, ge=0),
+    start: date | None = None,
+    end: date | None = None,
 ):
-    start = date.today() - timedelta(days=days)
+    # Custom date range takes precedence over days
+    if start or end:
+        date_start = start
+        date_end = end
+    elif days > 0:
+        date_start = date.today() - timedelta(days=days)
+        date_end = None
+    else:
+        # days == 0 means all time
+        date_start = None
+        date_end = None
 
     async with async_session() as session:
-        activities = (
-            await session.execute(
-                select(Activity)
-                .where(Activity.start_time >= start)
-                .order_by(Activity.start_time.desc())
-            )
-        ).scalars().all()
+        act_q = select(Activity).order_by(Activity.start_time.desc())
+        if date_start:
+            act_q = act_q.where(Activity.start_time >= date_start)
+        if date_end:
+            act_q = act_q.where(Activity.start_time <= date_end)
+        activities = (await session.execute(act_q)).scalars().all()
 
-        sleep = (
-            await session.execute(
-                select(Sleep)
-                .where(Sleep.calendar_date >= start)
-                .order_by(Sleep.calendar_date)
-            )
-        ).scalars().all()
+        sleep_q = select(Sleep).order_by(Sleep.calendar_date)
+        if date_start:
+            sleep_q = sleep_q.where(Sleep.calendar_date >= date_start)
+        if date_end:
+            sleep_q = sleep_q.where(Sleep.calendar_date <= date_end)
+        sleep = (await session.execute(sleep_q)).scalars().all()
 
-        daily = (
-            await session.execute(
-                select(DailySummary)
-                .where(DailySummary.calendar_date >= start)
-                .order_by(DailySummary.calendar_date)
-            )
-        ).scalars().all()
+        daily_q = select(DailySummary).order_by(DailySummary.calendar_date)
+        if date_start:
+            daily_q = daily_q.where(DailySummary.calendar_date >= date_start)
+        if date_end:
+            daily_q = daily_q.where(DailySummary.calendar_date <= date_end)
+        daily = (await session.execute(daily_q)).scalars().all()
 
-        hr = (
-            await session.execute(
-                select(HeartRate)
-                .where(HeartRate.calendar_date >= start)
-                .order_by(HeartRate.calendar_date)
-            )
-        ).scalars().all()
+        hr_q = select(HeartRate).order_by(HeartRate.calendar_date)
+        if date_start:
+            hr_q = hr_q.where(HeartRate.calendar_date >= date_start)
+        if date_end:
+            hr_q = hr_q.where(HeartRate.calendar_date <= date_end)
+        hr = (await session.execute(hr_q)).scalars().all()
 
-        body = (
-            await session.execute(
-                select(BodyComposition)
-                .where(BodyComposition.calendar_date >= start)
-                .order_by(BodyComposition.calendar_date)
-            )
-        ).scalars().all()
+        body_q = select(BodyComposition).order_by(BodyComposition.calendar_date)
+        if date_start:
+            body_q = body_q.where(BodyComposition.calendar_date >= date_start)
+        if date_end:
+            body_q = body_q.where(BodyComposition.calendar_date <= date_end)
+        body = (await session.execute(body_q)).scalars().all()
 
     return DashboardOut(
         activities=[ActivityOut.model_validate(a) for a in activities],
