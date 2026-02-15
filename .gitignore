@@ -3,6 +3,16 @@ __pycache__/
 *.py[codz]
 *$py.class
 
+# Claude
+.claude
+
+# IDE / OS
+.vscode/
+.DS_Store
+
+# Project data
+data/
+
 # C extensions
 *.so
 
